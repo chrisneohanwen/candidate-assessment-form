@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const ANTHROPIC_API_KEY = process.env.REACT_APP_ANTHROPIC_API_KEY;
+const ANTHROPIC_API_KEY = "YOUR_ANTHROPIC_API_KEY_HERE";
 const GMAIL_MCP_URL = "https://gmailmcp.googleapis.com/mcp/v1";
 const HR_EMAIL = "chrisn.office.hr@gmail.com";
 
@@ -448,6 +448,7 @@ export default function App() {
   const [enneagram, setEnneagram] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [savingStep, setSavingStep] = useState("");
   const set = (k, v) => setData(prev => ({ ...prev, [k]: v }));
   const discComplete = discSets.every(s => disc[s.id]?.most && disc[s.id]?.least);
   const enneagramComplete = enneagramTypes.every(t => enneagram[t.num] > 0);
@@ -462,11 +463,18 @@ export default function App() {
   const handleSubmit = async () => {
     setSaving(true);
     try {
+      setSavingStep("Saving your responses...");
       const record = { ...data, submittedAt: new Date().toISOString() };
+      setSavingStep("Generating your AI assessment... (this may take up to 60 seconds)");
       const assessment = await generateAssessment(data, disc, enneagram);
+      setSavingStep("Sending your submission to our team...");
       await sendEmailDraft(record, disc, enneagram, assessment);
+      setSavingStep("done");
       setSubmitted(true);
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      setSavingStep("error");
+    }
     setSaving(false);
   };
   const next = () => { if (step < 4) setStep(s => s + 1); else handleSubmit(); };
@@ -490,11 +498,11 @@ export default function App() {
           {step === 4 && <Section5 disc={disc} onDisc={setDisc} enneagram={enneagram} onEnneagram={setEnneagram} />}
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 28 }}>
             <button style={btnStyle(false, step === 0)} onClick={back} disabled={step === 0}>← Back</button>
-            <button style={btnStyle(true, !validate() || saving)} onClick={next} disabled={!validate() || saving}>
-              {saving ? "Submitting... (this may take up to 60 seconds)" : step === 4 ? "Submit Assessment" : "Next →"}
+            <button style={btnStyle(true, !validate())} onClick={next} disabled={!validate()}>
+              {step === 4 ? "Submit Assessment" : "Next →"}
             </button>
           </div>
-        </> : (
+        </>) : (
           <div style={{ textAlign: "center", padding: "40px 0" }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: "#1e293b" }}>Submission Complete</div>
