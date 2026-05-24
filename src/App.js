@@ -1,10 +1,4 @@
-cat > src/App.js << 'EOF'
 import { useState } from "react";
-EOF
-cat > src/App.js << 'EOF'
-import { useState } from "reacat > src/App.js << 'EOF'
-import { useState } from "react";
-EOFimport { useState } from "react";
 
 const ANTHROPIC_API_KEY = process.env.REACT_APP_ANTHROPIC_API_KEY;
 const GMAIL_MCP_URL = "https://gmailmcp.googleapis.com/mcp/v1";
